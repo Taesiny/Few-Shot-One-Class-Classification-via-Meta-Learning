@@ -53,7 +53,7 @@ def load_SSR(K, cir_inner_loop):
         base_path = '/home/USER/Projects'
 
     dataset_id = 'sawtooth'
-    data_path = base_path + '/MAML/input_data/new_SSR/' + dataset_id + '_SSR/'
+    data_path = '/content/Few-Shot-One-Class-Classification-via-Meta-Learning/MAMLs_Reptiles/STS_Sawtooth/Data/'
     train_tasks_file = open(data_path + 'train_tasks.txt', 'rb')
     train_tasks = pickle.load(train_tasks_file)
 
@@ -238,7 +238,7 @@ def main(args):
     seed = args.seed
     random.seed(seed)
     np.random.seed(seed)
-    tf.set_random_seed(seed)
+    tf.compat.v1.set_random_seed(seed)
 
     K = args.K
     cir = args.cir_inner_loop
@@ -265,7 +265,7 @@ def main(args):
         val_finetune_anomalous_indexes_list.append(
             list(np.where(val_tasks[i]['finetune_Y'] == 1)[0]))
 
-    sess = tf.InteractiveSession()
+    sess = tf.compat.v1.InteractiveSession()
     input_shape = train_tasks[0]['X_inner'][0].shape
     if('MAML' in args.summary_dir):
         if(args.stop_grad):
@@ -295,9 +295,9 @@ def main(args):
         if (not (os.path.exists(os.path.join(loddir_path, model.summary_dir)))):
             os.mkdir(os.path.join(loddir_path, model.summary_dir))
 
-        train_writer = tf.summary.FileWriter(
+        train_writer = tf.compat.v1.summary.FileWriter(
             os.path.join(loddir_path, model.summary_dir) + '/train')
-        val_writer = tf.summary.FileWriter(
+        val_writer = tf.compat.v1.summary.FileWriter(
             os.path.join(loddir_path, model.summary_dir) + '/val')
         val_tags = [
             'val_loss_avg',
@@ -308,8 +308,8 @@ def main(args):
             'val_f1_score_avg',
             'val_auc_pr_avg']
 
-    sess.run(tf.global_variables_initializer())
-    sess.run(tf.local_variables_initializer())
+    sess.run(tf.compat.v1.global_variables_initializer())
+    sess.run(tf.compat.v1.local_variables_initializer())
 
     # intialization
     val_test_loss = 0
@@ -369,9 +369,9 @@ def main(args):
                 val_summaries = []
                 for i in range(len(avg_val_metrics)):
                     val_summaries.append(
-                        tf.Summary(
+                        tf.compat.v1.Summary(
                             value=[
-                                tf.Summary.Value(
+                                tf.compat.v1.Summary.Value(
                                     tag=val_tags[i],
                                     simple_value=avg_val_metrics[i]),
                             ]))
@@ -432,7 +432,7 @@ def main(args):
                         sess.run(
                             model.updated_bn_model, {
                                 model.X_finetune: K_finetune_X})
-                    sess.run(tf.local_variables_initializer())
+                    sess.run(tf.compat.v1.local_variables_initializer())
                     test_loss, acc, precision, recall, specificity, f1_score, auc_pr = model.sess.run(
                         [model.test_loss, model.my_acc, model.my_precision, model.my_recall, model.my_specificity, model.my_f1_score, model.my_auc_pr], feed_dict=test_feed_dict)
                     loss_list.append(test_loss)
